@@ -9,17 +9,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class ItemPedido implements Serializable {
-    
+
     @JsonIgnore
     @EmbeddedId // Indica para o JPA que é uma chave composta
     private ItemPedidoPK id = new ItemPedidoPK();
 
-    
     private Double desconto;
     private Integer quantidade;
     private Double preco;
 
-    public ItemPedido() {}
+    public ItemPedido() {
+    }
 
     public ItemPedido(Pedido pedido, Produto produto, Double desconto, Integer quantidade, Double preco) {
         super();
@@ -83,6 +83,18 @@ public class ItemPedido implements Serializable {
         this.preco = preco;
     }
 
-    
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getProduto().getNome());
+        builder.append(", Qte");
+        builder.append(getQuantidade());
+        builder.append(", Preço Unitário");
+        builder.append(getPreco());
+        builder.append(", Subtotal");
+        builder.append(getSubTotal());
+        return builder.toString();
+
+    }
 
 }

@@ -18,11 +18,11 @@ import com.amigos.yeah.repositories.PagamentoRepository;
 
 @Service
 public class PedidoService {
-    
-    @Autowired
-    PedidoRepository repository;
 
-    @Autowired
+	@Autowired
+	PedidoRepository repository;
+
+	@Autowired
 	private BoletoService boletoService;
 
 	@Autowired
@@ -34,14 +34,15 @@ public class PedidoService {
 	@Autowired
 	private ProdutoService produtoService;
 
-    public Pedido find(Integer id) {
-        Optional<Pedido> obj = repository.findById(id);
-        
-        // Retorna o objeto ou gerará uma excessão personalizada
-        return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! ID: " + id + ", Tipo: " + Pedido.class.getName()));
-    }
+	public Pedido find(Integer id) {
+		Optional<Pedido> obj = repository.findById(id);
 
-    public Pedido insert(Pedido obj) {
+		// Retorna o objeto ou gerará uma excessão personalizada
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
+				"Objeto não encontrado! ID: " + id + ", Tipo: " + Pedido.class.getName()));
+	}
+
+	public Pedido insert(Pedido obj) {
 		obj.setId(null);
 		obj.setInstante(new Date());
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
@@ -58,6 +59,7 @@ public class PedidoService {
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
+		System.out.println(obj);
 		return obj;
 	}
 
