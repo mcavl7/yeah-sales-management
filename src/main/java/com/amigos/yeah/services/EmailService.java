@@ -1,5 +1,7 @@
 package com.amigos.yeah.services;
 
+import javax.mail.internet.MimeMessage;
+
 import com.amigos.yeah.domain.Pedido;
 
 import org.springframework.mail.SimpleMailMessage;
@@ -10,4 +12,7 @@ public interface EmailService {
 
     void sendEmail(SimpleMailMessage msg);
 
+    void sendOrderConfirmationHtmlEmail(Pedido obj);
+
+    void sendHtmlEmail(MimeMessage msg);
 }
