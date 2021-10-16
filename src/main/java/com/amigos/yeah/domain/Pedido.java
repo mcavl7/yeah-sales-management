@@ -1,8 +1,11 @@
 package com.amigos.yeah.domain;
 
 import java.io.Serializable;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -19,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Pedido implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -41,15 +44,16 @@ public class Pedido implements Serializable {
     @OneToMany(mappedBy = "id.pedido")
     private Set<ItemPedido> itens = new HashSet<>();
 
-    public Pedido() {}
+    public Pedido() {
+    }
 
     public Pedido(Integer id, Date instante, Cliente cliente, Endereco enderecoDeEntrega) {
-		super();
-		this.id = id;
-		this.instante = instante;
-		this.cliente = cliente;
-		this.enderecoDeEntrega = enderecoDeEntrega;
-	}
+        super();
+        this.id = id;
+        this.instante = instante;
+        this.cliente = cliente;
+        this.enderecoDeEntrega = enderecoDeEntrega;
+    }
 
     public Double getValorTotal() {
         double soma = 0.0;
@@ -96,8 +100,8 @@ public class Pedido implements Serializable {
         return cliente;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setCliente(Cliente optional) {
+        this.cliente = optional;
     }
 
     public Endereco getEnderecoDeEntrega() {
@@ -133,6 +137,29 @@ public class Pedido implements Serializable {
         return true;
     }
 
-    
+    @Override
+    public String toString() {
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy  hh:mm:ss");
+        StringBuilder builder = new StringBuilder();
+        builder.append("  Pedido número:  ");
+        builder.append(getId());
+        builder.append(",  Instante:   ");
+        builder.append(sdf.format(getInstante()));
+        builder.append(", Cliente:  ");
+        builder.append(getCliente().getNome());
+        builder.append(", Situação do pagamento:  ");
+        builder.append(getPagamento().getEstado().getDescricao());
+        builder.append("\n Detalhes:  \n");
+
+        for (ItemPedido ip : getItens()) {
+            builder.append(ip.toString());
+        }
+        builder.append("  Valor total:   ");
+        builder.append(nf.format(getValorTotal()));
+        return builder.toString();
+    }
+
+   
 
 }
