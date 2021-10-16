@@ -3,12 +3,10 @@ package com.amigos.yeah.services;
 import java.util.Date;
 import java.util.Optional;
 
-import com.amigos.yeah.domain.Cliente;
 import com.amigos.yeah.domain.ItemPedido;
 import com.amigos.yeah.domain.PagamentoComBoleto;
 import com.amigos.yeah.domain.Pedido;
 import com.amigos.yeah.domain.enums.EstadoPagamento;
-import com.amigos.yeah.repositories.ClienteRepository;
 import com.amigos.yeah.repositories.ItemPedidoRepository;
 import com.amigos.yeah.repositories.PagamentoRepository;
 import com.amigos.yeah.repositories.PedidoRepository;
@@ -38,6 +36,9 @@ public class PedidoService {
 	@Autowired
 	private ClienteService clienteService;
 
+	@Autowired
+	private EmailService emailService;
+
 	public Pedido find(Integer id) {
 		Optional<Pedido> obj = repository.findById(id);
 
@@ -65,7 +66,7 @@ public class PedidoService {
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
-		System.out.println(obj);
+		emailService.sendOrderConfirmation(obj);
 		return obj;
 	}
 }
