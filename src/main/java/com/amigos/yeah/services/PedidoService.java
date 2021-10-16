@@ -1,20 +1,21 @@
 package com.amigos.yeah.services;
 
-import java.util.Optional;
 import java.util.Date;
+import java.util.Optional;
 
+import com.amigos.yeah.domain.Cliente;
+import com.amigos.yeah.domain.ItemPedido;
+import com.amigos.yeah.domain.PagamentoComBoleto;
 import com.amigos.yeah.domain.Pedido;
+import com.amigos.yeah.domain.enums.EstadoPagamento;
+import com.amigos.yeah.repositories.ClienteRepository;
+import com.amigos.yeah.repositories.ItemPedidoRepository;
+import com.amigos.yeah.repositories.PagamentoRepository;
 import com.amigos.yeah.repositories.PedidoRepository;
 import com.amigos.yeah.services.exceptions.ObjectNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.amigos.yeah.domain.ItemPedido;
-import com.amigos.yeah.domain.PagamentoComBoleto;
-import com.amigos.yeah.domain.enums.EstadoPagamento;
-import com.amigos.yeah.repositories.ItemPedidoRepository;
-import com.amigos.yeah.repositories.PagamentoRepository;
 
 @Service
 public class PedidoService {
@@ -34,6 +35,9 @@ public class PedidoService {
 	@Autowired
 	private ProdutoService produtoService;
 
+	@Autowired
+	private ClienteService clienteService;
+
 	public Pedido find(Integer id) {
 		Optional<Pedido> obj = repository.findById(id);
 
@@ -45,6 +49,7 @@ public class PedidoService {
 	public Pedido insert(Pedido obj) {
 		obj.setId(null);
 		obj.setInstante(new Date());
+		obj.setCliente(clienteService.find(obj.getCliente().getId()));
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
 		obj.getPagamento().setPedido(obj);
 		if (obj.getPagamento() instanceof PagamentoComBoleto) {
@@ -55,12 +60,12 @@ public class PedidoService {
 		pagamentoRepository.save(obj.getPagamento());
 		for (ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.0);
-			ip.setPreco(produtoService.find(ip.getProduto().getId()).getPreco());
+			ip.setProduto(produtoService.find(ip.getProduto().getId()));
+			ip.setPreco(ip.getProduto().getPreco());
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.saveAll(obj.getItens());
 		System.out.println(obj);
 		return obj;
 	}
-
 }
