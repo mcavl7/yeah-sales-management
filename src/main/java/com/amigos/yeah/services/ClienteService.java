@@ -6,11 +6,14 @@ import java.util.Optional;
 import com.amigos.yeah.domain.Cidade;
 import com.amigos.yeah.domain.Cliente;
 import com.amigos.yeah.domain.Endereco;
+import com.amigos.yeah.domain.enums.Perfil;
 import com.amigos.yeah.domain.enums.TipoCliente;
 import com.amigos.yeah.dto.ClienteDTO;
 import com.amigos.yeah.dto.ClienteNewDTO;
 import com.amigos.yeah.repositories.ClienteRepository;
 import com.amigos.yeah.repositories.EnderecoRepository;
+import com.amigos.yeah.security.UserSS;
+import com.amigos.yeah.services.exceptions.AuthorizationException;
 import com.amigos.yeah.services.exceptions.DataIntegrityException;
 import com.amigos.yeah.services.exceptions.ObjectNotFoundException;
 
@@ -35,8 +38,13 @@ public class ClienteService {
     private EnderecoRepository enderecoRepository;
 
     public Cliente find(Integer id) {
+        UserSS user = UserService.authenticated();
+
+        if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+            throw new AuthorizationException("Acesso Negado");
+        }
+
         Optional<Cliente> obj = repository.findById(id);
-        
         // Retorna o objeto ou gerará uma excessão personalizada
         return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! ID: " + id + ", Tipo: " + Cliente.class.getName()));
     }
