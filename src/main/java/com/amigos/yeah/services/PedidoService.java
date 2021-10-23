@@ -3,6 +3,7 @@ package com.amigos.yeah.services;
 import java.util.Date;
 import java.util.Optional;
 
+import com.amigos.yeah.domain.Cliente;
 import com.amigos.yeah.domain.ItemPedido;
 import com.amigos.yeah.domain.PagamentoComBoleto;
 import com.amigos.yeah.domain.Pedido;
@@ -10,9 +11,14 @@ import com.amigos.yeah.domain.enums.EstadoPagamento;
 import com.amigos.yeah.repositories.ItemPedidoRepository;
 import com.amigos.yeah.repositories.PagamentoRepository;
 import com.amigos.yeah.repositories.PedidoRepository;
+import com.amigos.yeah.security.UserSS;
+import com.amigos.yeah.services.exceptions.AuthorizationException;
 import com.amigos.yeah.services.exceptions.ObjectNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -68,5 +74,15 @@ public class PedidoService {
 		itemPedidoRepository.saveAll(obj.getItens());
 		emailService.sendOrderConfirmationHtmlEmail(obj);
 		return obj;
+	}
+
+	public Page<Pedido> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		UserSS user = UserService.authenticated();
+		if (user == null) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		Cliente cliente =  clienteService.find(user.getId());
+		return repository.findByCliente(cliente, pageRequest);
 	}
 }
