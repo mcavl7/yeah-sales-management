@@ -1,8 +1,10 @@
 package com.amigos.yeah.services;
 
-import java.net.URI;
+// import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.awt.image.BufferedImage;
+import java.net.URI;
 
 import com.amigos.yeah.domain.Cidade;
 import com.amigos.yeah.domain.Cliente;
@@ -19,12 +21,14 @@ import com.amigos.yeah.services.exceptions.DataIntegrityException;
 import com.amigos.yeah.services.exceptions.ObjectNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+// import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -38,6 +42,12 @@ public class ClienteService {
 
     @Autowired
     private EnderecoRepository enderecoRepository;
+
+    @Autowired
+    private ImageService imageService; 
+
+    @Value("${img.prefix.client.profile}")
+    private String prefix;
 
     @Autowired
     private S3Service s3service;
@@ -120,13 +130,10 @@ public class ClienteService {
             throw new AuthorizationException("Acesso Negado!");
         }
 
-        URI uri =  s3service.uploadFile(multipartFile);
-        Optional<Cliente> cli = repository.findById(user.getId());
+        BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+        String fileName = prefix + user.getId() + ".jpg";
+        return s3service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
 
-        cli.get().setImgUrl(uri.toString());
-        repository.save(cli.get());
-
-        return uri;
     }
 
 }
