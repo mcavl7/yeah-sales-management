@@ -1,5 +1,7 @@
 package com.amigos.yeah.config;
 
+import java.util.Arrays;
+
 import com.amigos.yeah.security.JWTAuthenticationFilter;
 import com.amigos.yeah.security.JWTAuthorizationFilter;
 import com.amigos.yeah.security.JWTUtil;
@@ -67,8 +69,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
+        configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "OPTIONS", "DELETE"));
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
